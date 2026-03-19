@@ -1,0 +1,8 @@
+release=code_repo
+copied	README.md
+copied	requirements.txt
+copied	.gitignore
+copied	docs/open_source
+copied	notebooks/scripts
+copied	notebooks/util.py
+copied	StreetSZ/config.json

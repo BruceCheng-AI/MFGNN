@@ -1,0 +1,50 @@
+{
+    "geo": {
+        "including_types": [
+            "Polygon"
+        ],
+        "Polygon": {}
+    },
+    "rel": {
+        "including_types": [
+            "geo"
+        ],
+        "geo": {
+            "link_weight": "num"
+        }
+    },
+    "dyna": {
+        "including_types": [
+            "state"
+        ],
+        "state": {
+            "entity_id": "geo_id",
+            "traffic_speed": "num",
+            "TPI": "num"
+        }
+    },
+    "info": {
+        "data_col": [
+            "traffic_speed",
+            "TPI"
+        ],
+        "ext_col": [
+            "R1h",
+            "W1h",
+            "T1h",
+            "V1h",
+            "alert_level",
+            "holiday_status",
+            "event_rating"
+        ],
+        "weight_col": "link_weight",
+        "geo_file": "StreetSZ",
+        "rel_file": "StreetSZ",
+        "output_dim": 2,
+        "time_intervals": 10800,
+        "init_weight_inf_or_zero": "inf",
+        "set_weight_link_or_dist": "dist",
+        "calculate_weight_adj": false,
+        "weight_adj_epsilon": 0.1
+    }
+}
