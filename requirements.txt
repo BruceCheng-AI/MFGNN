@@ -1,8 +1,4 @@
-matplotlib>=3.7
-numpy>=1.23
-pandas>=1.5
-scikit-learn>=1.2
-torch>=2.1
+numpy>=1.24
+pandas>=2.0
+torch>=2.0
 tqdm>=4.66
-lion-pytorch>=0.1
-jupyter>=1.0

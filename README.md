@@ -1,36 +1,159 @@
-# Multimodal Graph Meta-Learning for Few-Shot Traffic Forecasting under Anomalous Events
+# MFGNN Package
 
-## Abstract
+This package is a minimal runnable extraction of the MFGNN pipeline used in the StreetSZ experiments.
+It keeps only the core pieces needed to reproduce the training and evaluation workflow:
 
-Accurate traffic forecasting under anomalous urban events remains challenging because extreme weather, public holidays, and large-scale gatherings can shift traffic patterns away from routine regimes, while event-specific samples are often limited. This study formulates anomalous-event traffic forecasting as a few-shot multimodal spatiotemporal prediction problem under distribution shift and proposes a graph meta-learning framework for rapid adaptation across heterogeneous scenarios. The framework integrates multimodal feature encoding, adaptive graph learning, and meta-learned parameter initialization to capture traffic dynamics, exogenous context, and event-driven changes in regional dependency. Experiments on StreetSZ, a real-world multimodal dataset covering 74 sub-districts in Shenzhen, show that the proposed method consistently outperforms representative statistical, sequential, and graph-based baselines in both overall and event-wise evaluations. Few-shot adaptation and ablation studies further support the contribution of the proposed design. The results indicate that graph-based rapid adaptation is a practical approach to robust traffic forecasting under anomalous urban conditions.
+- StreetSZ data loading and sequence construction
+- MFGNN model definition
+- Reptile-style meta-training
+- anomalous fine-tuning and scenario evaluation
 
-## Repository Overview
+## Package Structure
 
-This repository contains the public code release for the MFGNN framework. The project focuses on multimodal traffic forecasting with street-level traffic targets and exogenous signals such as weather, holidays, and major events.
+```text
+project_root/
+|-- StreetSZ/
+|   |-- StreetSZ.geo
+|   |-- StreetSZ.rel
+|   |-- StreetSZ.dyna
+|   |-- StreetSZ.ext
+|   `-- StreetSZ.fut
+`-- MFGNN_package/
+    |-- run_mfgnn.py
+    |-- run_full.bat
+    |-- run_smoke_test.bat
+    |-- requirements.txt
+    `-- mfgnn/
+        |-- __init__.py
+        |-- data.py
+        |-- model.py
+        `-- train.py
+```
 
-## Repository Structure
+## Requirements
 
-- `notebooks/scripts/`: model definitions, preprocessing, ablation, and meta-learning scripts
-- `notebooks/util.py`: utility helpers
-- `StreetSZ/config.json`: dataset schema reference
-- `docs/open_source/`: release notes and dataset documentation
+- Python 3.10+
+- PyTorch
+- numpy
+- pandas
+- tqdm
 
-## Environment
+Install dependencies with:
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Notes
+## Dataset Directory
 
-- The current public code keeps the original experiment layout under `notebooks/`.
-- Several scripts import modules with `from scripts ...`, so keep the existing folder layout when running the code.
-- The dataset description is documented in `docs/open_source/DATASET_CARD.md` and `docs/open_source/DATASET_DICTIONARY.md`.
-
-## Release Helper
+You can always pass the dataset directory explicitly:
 
 ```bash
-python prepare_open_source_release.py
+python run_mfgnn.py --dataset-dir "E:\path\to\StreetSZ"
 ```
+
+If `--dataset-dir` is not provided, the script now searches these locations automatically:
+
+1. `../StreetSZ`
+2. `./StreetSZ`
+3. `../TITS2/StreetSZ`
+4. `../TITS/StreetSZ`
+5. `../dataset_package/StreetSZ`
+
+If none of them contains a complete StreetSZ dataset, the script prints a clear error message with the searched paths.
+
+## Quick Start
+
+Run the default training + fine-tuning + evaluation pipeline:
+
+```bash
+python run_mfgnn.py
+```
+
+Or use the Windows batch wrapper:
+
+```bat
+run_full.bat
+```
+
+## Smoke Test
+
+For a fast validation run on CPU:
+
+```bat
+run_smoke_test.bat
+```
+
+This uses a tiny configuration:
+
+- `meta_epochs=1`
+- `fine_tune_epochs=1`
+- `num_tasks=1`
+- `task_batch_size=1`
+- `batch_size=2`
+- `device=cpu`
+
+You can still override arguments, for example:
+
+```bat
+run_smoke_test.bat --dataset-dir "E:\path\to\StreetSZ"
+```
+
+## Resume From a Meta Checkpoint
+
+```bash
+python run_mfgnn.py --meta-checkpoint ".\mfgnn_outputs\mfgnn_checkpoints\mfgnn_meta_epoch200.pt"
+```
+
+## Default Configuration
+
+The default configuration follows the original notebook settings:
+
+- `sequence_length=8`
+- `forecast_horizon=4`
+- `hidden_dim=64`
+- `num_heads=4`
+- `edge_hidden_dim=32`
+- `num_layers=2`
+- `dropout=0.1`
+- `num_tasks=10`
+- `support_ratio=0.8`
+- `task_batch_size=4`
+- `adapt_steps=2`
+- `meta_lr=1e-3`
+- `fine_tune_lr=5e-4`
+- `meta_epochs=200`
+- `fine_tune_epochs=15`
+
+## Outputs
+
+The pipeline writes results into `mfgnn_outputs/` by default:
+
+- `mfgnn_checkpoints/mfgnn_meta_epoch*.pt`
+- `mfgnn_checkpoints/mfgnn_final_finetuned.pt`
+- `mfgnn_meta_loss_history.csv`
+- `mfgnn_config.json`
+- `mfgnn_metrics.json`
+
+`mfgnn_metrics.json` contains:
+
+- `full_test`
+- `all_anomalous`
+- `alert_weather`
+- `holiday`
+- `event`
+
+Each scenario includes:
+
+- `overall`
+- `traffic_speed`
+- `TPI`
+
+## Validation Note
+
+This package has been smoke-tested locally with:
+
+- a minimal train/fine-tune/evaluate run
+- resume-from-checkpoint execution
+
+The exact training speed and final metrics will depend on your hardware, Python environment, and dataset location.
