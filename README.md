@@ -1,33 +1,46 @@
 # MFGNN Package
 
-This package is a minimal runnable extraction of the MFGNN pipeline used in the StreetSZ experiments.
-It keeps only the core pieces needed to reproduce the training and evaluation workflow:
+This repository provides a cleaned and runnable release of the MFGNN pipeline for few-shot traffic forecasting on the StreetSZ dataset.
 
-- StreetSZ data loading and sequence construction
-- MFGNN model definition
-- Reptile-style meta-training
-- anomalous fine-tuning and scenario evaluation
+It includes:
 
-## Package Structure
+- the core MFGNN model implementation
+- Reptile-style meta-learning
+- anomalous-event fine-tuning and evaluation
+- the StreetSZ dataset files used by the package
+
+## StreetSZ Overview
+
+![StreetSZ dataset overview](assets/streetsz_dataset_overview.png)
+
+The figure above summarizes the StreetSZ dataset, including its spatial coverage, data modalities, and anomalous-event statistics.
+
+## Repository Structure
 
 ```text
-project_root/
+MFGNN/
+|-- assets/
+|   `-- streetsz_dataset_overview.png
 |-- StreetSZ/
 |   |-- StreetSZ.geo
 |   |-- StreetSZ.rel
 |   |-- StreetSZ.dyna
 |   |-- StreetSZ.ext
-|   `-- StreetSZ.fut
-`-- MFGNN_package/
-    |-- run_mfgnn.py
-    |-- run_full.bat
-    |-- run_smoke_test.bat
-    |-- requirements.txt
-    `-- mfgnn/
-        |-- __init__.py
-        |-- data.py
-        |-- model.py
-        `-- train.py
+|   |-- StreetSZ.fut
+|   |-- StreetSZ.his
+|   |-- Street_Attr.csv
+|   |-- config.json
+|   `-- shp/
+|-- mfgnn/
+|   |-- __init__.py
+|   |-- data.py
+|   |-- model.py
+|   `-- train.py
+|-- run_mfgnn.py
+|-- run_full.bat
+|-- run_smoke_test.bat
+|-- requirements.txt
+`-- README.md
 ```
 
 ## Requirements
@@ -46,31 +59,25 @@ pip install -r requirements.txt
 
 ## Dataset Directory
 
-You can always pass the dataset directory explicitly:
+The repository already includes `StreetSZ/`, so the default command can run without passing `--dataset-dir`.
+
+If needed, you can still specify the dataset path explicitly:
 
 ```bash
 python run_mfgnn.py --dataset-dir "E:\path\to\StreetSZ"
 ```
 
-If `--dataset-dir` is not provided, the script now searches these locations automatically:
-
-1. `../StreetSZ`
-2. `./StreetSZ`
-3. `../TITS2/StreetSZ`
-4. `../TITS/StreetSZ`
-5. `../dataset_package/StreetSZ`
-
-If none of them contains a complete StreetSZ dataset, the script prints a clear error message with the searched paths.
+If `--dataset-dir` is omitted, `run_mfgnn.py` automatically searches several common locations and prints a clear error message if no complete StreetSZ dataset is found.
 
 ## Quick Start
 
-Run the default training + fine-tuning + evaluation pipeline:
+Run the default training, fine-tuning, and evaluation pipeline:
 
 ```bash
 python run_mfgnn.py
 ```
 
-Or use the Windows batch wrapper:
+On Windows, you can also use:
 
 ```bat
 run_full.bat
@@ -78,13 +85,13 @@ run_full.bat
 
 ## Smoke Test
 
-For a fast validation run on CPU:
+For a fast CPU-only validation run:
 
 ```bat
 run_smoke_test.bat
 ```
 
-This uses a tiny configuration:
+This smoke test uses:
 
 - `meta_epochs=1`
 - `fine_tune_epochs=1`
@@ -151,9 +158,9 @@ Each scenario includes:
 
 ## Validation Note
 
-This package has been smoke-tested locally with:
+This release has been smoke-tested locally with:
 
 - a minimal train/fine-tune/evaluate run
 - resume-from-checkpoint execution
 
-The exact training speed and final metrics will depend on your hardware, Python environment, and dataset location.
+Training speed and final metrics may vary depending on hardware and environment.
